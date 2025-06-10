@@ -28,6 +28,7 @@ public class BarigüiPrime extends Robot
 			turnGunRight(90);
 			back(80);
 			turnGunRight(90);
+			turnRadarRight(360);
 		}
 	}
 
