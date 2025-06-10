@@ -12,7 +12,7 @@
 #----------------------------------------------------------
 
 # Used for setting Java options
-. ./set_java_options.sh
+./set_java_options.sh
 exit_code=$?
 
 # Save present work directory (pwd)
@@ -24,6 +24,7 @@ cd "${0%/*}" || exit
 if [ "$exit_code" -ne 100 ]; then
   # Run Robocode
   java \
+    -Djava.security.manager=allow \
     -cp "libs/*" \
     -Xmx512M \
     -Xdock:name=Robocode \
