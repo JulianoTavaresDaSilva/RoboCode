@@ -24,7 +24,7 @@ public class BarigüiPrime extends Robot
 		// Robot main loop
 		while(true) {
 			// Replace the next 4 lines with any behavior you would like
-			ahead(100);
+			ahead(200);
 			turnGunRight(360);
 			back(100);
 			turnGunRight(360);
