@@ -1,58 +1,48 @@
 package Transformers;
+
 import robocode.*;
-//teste
-//import java.awt.Color;
+import robocode.util.Utils;
+import java.awt.geom.*;
+import java.util.ArrayList;
 
-// API help : https://robocode.sourceforge.io/docs/robocode/robocode/Robot.html
+public class BarigüiPrime extends AdvancedRobot {
 
-/**
- * BarigüiPrime - a robot by (your name here)
- */
-public class BarigüiPrime extends Robot
-{
-	/**
-	 * run: BarigüiPrime's default behavior
-	 */
-	public void run() {
-		// Initialization of the robot should be put here
+    private Point2D.Double myLocation;       
+    private Point2D.Double enemyLocation;   
+    private Rectangle2D.Double fieldRect;   
 
-		// After trying out your robot, try uncommenting the import at the top,
-		// and the next line:
+    private ArrayList<EnemyWave> enemyWaves = new ArrayList<>();
+    private ArrayList<Integer> surfDirections = new ArrayList<>(); 
+    private ArrayList<Double> surfAbsBearings = new ArrayList<>();
+    private static final int BINS = 47;
+    private static final double[] surfStats = new double[BINS]; 
+    private static final double WALL_STICK = 160;
 
-		// setColors(Color.red,Color.blue,Color.green); // body,gun,radar
+    private double opponentEnergy = 100; 
+    public void run() {
+        fieldRect = new Rectangle2D.Double(18, 18, getBattleFieldWidth() - 36, getBattleFieldHeight() - 36);
 
-		// Robot main loop
-		while(true) {
-			// Replace the next 4 lines with any behavior you would like
-			ahead(200);
-			turnGunRight(90);
-			back(80);
-			turnGunRight(90);
-			turnRadarRight(360);
-		}
-	}
+        enemyWaves = new ArrayList<>();
+        surfDirections = new ArrayList<>();
+        surfAbsBearings = new ArrayList<>();
+		
+        setAdjustGunForRobotTurn(true);
+        setAdjustRadarForGunTurn(true);
+		
+        while (true) {
+            turnRadarRightRadians(Double.POSITIVE_INFINITY);
+        }
+    }
+    public void onScannedRobot(ScannedRobotEvent e) {
+        fire(5);
+    }
+    public void onHitByBullet(HitByBulletEvent e) {
+        back(10);
+    }
 
-	/**
-	 * onScannedRobot: What to do when you see another robot
-	 */
-	public void onScannedRobot(ScannedRobotEvent e) {
-		// Replace the next line with any behavior you would like
-		fire(5);
-	}
+    public void onHitWall(HitWallEvent e) {
+        back(20);
+    }
 
-	/**
-	 * onHitByBullet: What to do when you're hit by a bullet
-	 */
-	public void onHitByBullet(HitByBulletEvent e) {
-		// Replace the next line with any behavior you would like
-		back(10);
-	}
-	
-	/**
-	 * onHitWall: What to do when you hit a wall
-	 */
-	public void onHitWall(HitWallEvent e) {
-		// Replace the next line with any behavior you would like
-		back(20);
-	}	
+
 }
