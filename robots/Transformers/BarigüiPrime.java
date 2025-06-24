@@ -22,11 +22,9 @@ public class BarigüiPrime extends AdvancedRobot {
 
     public void run() {
         fieldRect = new Rectangle2D.Double(18, 18, getBattleFieldWidth() - 36, getBattleFieldHeight() - 36);
-
         enemyWaves = new ArrayList<>();
         surfDirections = new ArrayList<>();
         surfAbsBearings = new ArrayList<>();
-
         setAdjustGunForRobotTurn(true);
         setAdjustRadarForGunTurn(true);
 
@@ -37,11 +35,8 @@ public class BarigüiPrime extends AdvancedRobot {
 
     public void onScannedRobot(ScannedRobotEvent e) {
         myLocation = new Point2D.Double(getX(), getY());
-
         double absBearing = getHeadingRadians() + e.getBearingRadians();
-
         enemyLocation = project(myLocation, absBearing, e.getDistance());
-
         setTurnRadarRightRadians(Utils.normalRelativeAngle(absBearing - getRadarHeadingRadians()) * 2);
 
         double lateralVelocity = getVelocity() * Math.sin(e.getBearingRadians());
@@ -61,7 +56,6 @@ public class BarigüiPrime extends AdvancedRobot {
         }
 
         opponentEnergy = e.getEnergy();
-
         updateWaves();
         doSurfing();
         fireAtEnemy(e);
@@ -118,8 +112,8 @@ public class BarigüiPrime extends AdvancedRobot {
 
         double goAngle = absoluteBearing(surfWave.fireLocation, myLocation);
         goAngle = (dangerLeft < dangerRight)
-            ? wallSmoothing(myLocation, goAngle - Math.PI / 2, -1)
-            : wallSmoothing(myLocation, goAngle + Math.PI / 2, 1);
+                ? wallSmoothing(myLocation, goAngle - Math.PI / 2, -1)
+                : wallSmoothing(myLocation, goAngle + Math.PI / 2, 1);
 
         setBackAsFront(this, goAngle);
     }
@@ -171,46 +165,44 @@ public class BarigüiPrime extends AdvancedRobot {
         return position;
     }
 
-    private double wallSmoothing(Point2D.Double position, double angle, int orientation) {
-        double angleStep = 0.05 * orientation;
-        while (!fieldRect.contains(project(position, angle, WALL_STICK))) {
-            angle += angleStep;
+    private int getFactorIndex(EnemyWave wave, Point2D.Double target) {
+        double offsetAngle = absoluteBearing(wave.fireLocation, target) - wave.directAngle;
+        double factor = Utils.normalRelativeAngle(offsetAngle) / maxEscapeAngle(wave.bulletVelocity) * wave.direction;
+        return (int) limit(0, (factor * ((BINS - 1) / 2)) + ((BINS - 1) / 2), BINS - 1);
+    }
+
+    private double wallSmoothing(Point2D.Double pos, double angle, int orientation) {
+        while (!fieldRect.contains(project(pos, angle, WALL_STICK))) {
+            angle += orientation * 0.05;
         }
         return angle;
     }
 
-    private static void setBackAsFront(AdvancedRobot robot, double goAngle) {
-        double angle = Utils.normalRelativeAngle(goAngle - robot.getHeadingRadians());
-        if (Math.abs(angle) > Math.PI / 2) {
-            robot.setTurnRightRadians(Utils.normalRelativeAngle(angle + Math.PI));
-            robot.setBack(100);
-        } else {
-            robot.setTurnRightRadians(angle);
-            robot.setAhead(100);
-        }
+    private static Point2D.Double project(Point2D.Double source, double angle, double length) {
+        return new Point2D.Double(source.x + Math.sin(angle) * length, source.y + Math.cos(angle) * length);
     }
 
-    private static double limit(double min, double value, double max) {
-        return Math.max(min, Math.min(value, max));
+    private static double absoluteBearing(Point2D.Double source, Point2D.Double target) {
+        return Math.atan2(target.x - source.x, target.y - source.y);
     }
 
-    private int getFactorIndex(EnemyWave wave, Point2D.Double targetLocation) {
-        double offsetAngle = absoluteBearing(wave.fireLocation, targetLocation) - wave.directAngle;
-        double factor = Utils.normalRelativeAngle(offsetAngle) / maxEscapeAngle(wave.bulletVelocity) * wave.direction;
-        return (int) limit(0, (factor + 1) / 2 * (BINS - 1), BINS - 1);
+    private static double limit(double min, double val, double max) {
+        return Math.max(min, Math.min(val, max));
     }
 
-    private double maxEscapeAngle(double velocity) {
+    private static double maxEscapeAngle(double velocity) {
         return Math.asin(8.0 / velocity);
     }
 
-    private Point2D.Double project(Point2D.Double sourceLocation, double angle, double length) {
-        return new Point2D.Double(sourceLocation.getX() + Math.sin(angle) * length,
-                                  sourceLocation.getY() + Math.cos(angle) * length);
-    }
-
-    private double absoluteBearing(Point2D.Double source, Point2D.Double target) {
-        return Math.atan2(target.getX() - source.getX(), target.getY() - source.getY());
+    private static void setBackAsFront(AdvancedRobot robot, double angle) {
+        double turn = Utils.normalRelativeAngle(angle - robot.getHeadingRadians());
+        if (Math.abs(turn) > Math.PI / 2) {
+            robot.setTurnRightRadians(Utils.normalRelativeAngle(turn + Math.PI));
+            robot.setBack(100);
+        } else {
+            robot.setTurnRightRadians(turn);
+            robot.setAhead(100);
+        }
     }
 
     private static class EnemyWave {
